@@ -1,37 +1,44 @@
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useEffect } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ContactContext from '../../context/contact/contactContext';
 import ContactItem from './ContactItem';
-import PropTypes from 'prop-types';
+import Spinner from '../layout/Spinner';
 
 const ContactList = props => {
   const ctx = useContext(ContactContext);
 
-  const { contacts, filtered } = ctx;
+  const { contacts, filtered, getContacts, loading } = ctx;
 
-  if (contacts.length < 1) {
+  useEffect(() => {
+    getContacts();
+    // eslint-disable-next-line
+  }, []);
+
+  if (contacts && contacts.length < 1) {
     return <h3>No contacts</h3>;
   }
 
   return (
     <Fragment>
-      <TransitionGroup>
+      { contacts !== null && !loading ? 
+        (<TransitionGroup>
         {filtered !== null
           ? filtered.map(f => (
-              <CSSTransition key={f.id} classNames="item" timeout={500}>
+              <CSSTransition key={f._id} classNames="item" timeout={500}>
                 <ContactItem contact={f} />
               </CSSTransition>
             ))
           : contacts.map(c => (
-              <CSSTransition key={c.id} classNames="item" timeout={500}>
+              <CSSTransition key={c._id} classNames="item" timeout={500}>
                 <ContactItem contact={c} />
               </CSSTransition>
             ))}
-      </TransitionGroup>
+      </TransitionGroup>) 
+      : <Spinner />
+    }
+      
     </Fragment>
   );
 };
-
-ContactList.propTypes = {};
 
 export default ContactList;
